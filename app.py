@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -540,8 +541,15 @@ def checklist():
     return render_template("pages/checklist.html")
 
 
-with app.app_context():
-    db.create_all()
+def init_db() -> None:
+    try:
+        with app.app_context():
+            db.create_all()
+    except SQLAlchemyError as exc:
+        app.logger.exception("Database initialization failed: %s", exc)
+
+
+init_db()
 
 
 if __name__ == "__main__":
