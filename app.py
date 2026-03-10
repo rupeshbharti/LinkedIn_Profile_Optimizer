@@ -14,12 +14,40 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
+
+def load_local_env(path: str = ".env") -> None:
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path, "r", encoding="utf-8") as env_file:
+            for raw_line in env_file:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                if not key:
+                    continue
+                # Keep explicit OS env vars if already set.
+                if key not in os.environ:
+                    os.environ[key] = value.strip().strip('"').strip("'")
+    except OSError:
+        # If .env cannot be read, proceed with existing environment values.
+        return
+
+
+load_local_env()
+
 # Replace these with your real values in production.
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "")
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "",
 )
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+if not DATABASE_URL:
+    DATABASE_URL = "sqlite:///linkedin_optimizer.db"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
