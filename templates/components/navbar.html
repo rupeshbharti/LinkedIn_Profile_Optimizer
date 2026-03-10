@@ -1,0 +1,14 @@
+<nav class="navbar">
+  <a href="{{ url_for('landing') }}" class="brand">LinkedIn Optimizer</a>
+  <div class="nav-links">
+    <a href="{{ url_for('landing') }}#features">Features</a>
+    <a href="{{ url_for('landing') }}#how-it-works">How it Works</a>
+    {% if session.get('user') %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+      <a href="{{ url_for('login') }}" class="btn">Sign Up</a>
+    {% endif %}
+  </div>
+</nav>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard">
+  {% include 'components/sidebar.html' %}
+  <div class="main-content">
+    <h1>Dashboard</h1>
+    <div class="grid three">
+      {% with title='Profile Score', value=(latest.score if latest else 'N/A') %}
+        {% include 'components/profile_card.html' %}
+      {% endwith %}
+      {% with title='Profiles Analyzed', value=(history|length) %}
+        {% include 'components/profile_card.html' %}
+      {% endwith %}
+      {% with title='Improvements Suggested', value=((latest.improvement_suggestions|length) if latest else 0) %}
+        {% include 'components/profile_card.html' %}
+      {% endwith %}
+    </div>
+    <a href="{{ url_for('analyzer') }}" class="btn">Analyze LinkedIn Profile</a>
+  </div>
+</section>
+{% endblock %}

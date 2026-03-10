@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard">
+  {% include 'components/sidebar.html' %}
+  <div class="main-content">
+    <h1>Profile Analyzer</h1>
+    <form method="post" class="card form">
+      <label>LinkedIn Profile URL
+        <input type="url" name="profile_url" placeholder="https://linkedin.com/in/username">
+      </label>
+      <label>Headline
+        <input type="text" name="headline" placeholder="BSc Student">
+      </label>
+      <label>About
+        <textarea name="about" rows="4" placeholder="Write your about section"></textarea>
+      </label>
+      <label>Experience
+        <textarea name="experience" rows="4" placeholder="Worked on website project"></textarea>
+      </label>
+      <label>Skills (comma-separated)
+        <input type="text" name="skills" placeholder="Python, React, SQL">
+      </label>
+      <label>Education
+        <input type="text" name="education" placeholder="B.Tech Computer Science">
+      </label>
+      <label>Interests
+        <input type="text" name="interests" placeholder="Web development, AI, open source">
+      </label>
+      <label>Paste Full Profile Content (optional)
+        <textarea name="profile_content" rows="6" placeholder="Paste your LinkedIn profile text"></textarea>
+      </label>
+      <button type="submit" class="btn">Analyze Profile</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

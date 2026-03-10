@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard">
+  {% include 'components/sidebar.html' %}
+  <div class="main-content">
+    <h1>Analysis History</h1>
+    <div class="card">
+      {% if history %}
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in history %}
+              <tr>
+                <td>{{ item.date }}</td>
+                <td>{{ item.score }}%</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No analysis history yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

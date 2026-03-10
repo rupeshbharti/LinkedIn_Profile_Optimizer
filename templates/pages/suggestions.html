@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard">
+  {% include 'components/sidebar.html' %}
+  <div class="main-content">
+    <h1>Suggestions</h1>
+
+    <div class="score-wrap card">
+      <div class="score-circle" style="--score: {{ analysis.score }};">
+        <span>{{ analysis.score }}%</span>
+      </div>
+      <div>
+        <h3>Profile Score: {{ analysis.score }}%</h3>
+        <div class="progress">
+          <div class="progress-fill" style="width: {{ analysis.score }}%;"></div>
+        </div>
+        <p>
+          Headline: {{ '✔' if analysis.section_status.headline else '✖' }} |
+          About: {{ '✔' if analysis.section_status.about else '✖' }} |
+          Experience: {{ '✔' if analysis.section_status.experience else '✖' }} |
+          Skills: {{ '✔' if analysis.section_status.skills else '✖' }} |
+          Keywords: {{ '✔' if analysis.section_status.keywords else '✖' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="grid two">
+      <article class="card">
+        <h3>Headline Improvement</h3>
+        <p><strong>Before:</strong> {{ analysis.current.headline }}</p>
+        <p id="headline-after"><strong>After:</strong> {{ analysis.optimized.headline }}</p>
+        <button class="btn btn-outline copy-btn" data-copy-target="headline-after">Copy</button>
+      </article>
+
+      <article class="card">
+        <h3>About Section</h3>
+        <p id="about-after">{{ analysis.optimized.about }}</p>
+        <button class="btn btn-outline copy-btn" data-copy-target="about-after">Copy</button>
+      </article>
+    </div>
+
+    <div class="grid two">
+      <article class="card">
+        <h3>Experience Improvement</h3>
+        <p id="experience-after">{{ analysis.optimized.experience }}</p>
+        <button class="btn btn-outline copy-btn" data-copy-target="experience-after">Copy</button>
+      </article>
+
+      <article class="card">
+        <h3>Skills Suggestions</h3>
+        <ul>
+          {% for skill in analysis.optimized.skills %}
+            <li>{{ skill }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+    </div>
+
+    <article class="card">
+      <h3>Keyword Optimization</h3>
+      <ul>
+        {% for keyword in analysis.optimized.keywords %}
+          <li>{{ keyword }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    {% if analysis.improvement_suggestions %}
+      <article class="card">
+        <h3>Action Items</h3>
+        <ul>
+          {% for item in analysis.improvement_suggestions %}
+            <li>{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </article>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

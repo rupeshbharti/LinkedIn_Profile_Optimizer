@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .landing-dynamic {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.2rem;
+    background: linear-gradient(140deg, #f7fbff 0%, #edf5ff 45%, #ffffff 100%);
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.25rem;
+    align-items: center;
+  }
+
+  .landing-dynamic::before,
+  .landing-dynamic::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    z-index: 0;
+    filter: blur(2px);
+  }
+
+  .landing-dynamic::before {
+    width: 320px;
+    height: 320px;
+    right: -95px;
+    top: -110px;
+    background: radial-gradient(circle, rgba(10, 102, 194, 0.22), transparent 72%);
+    animation: drift 6s ease-in-out infinite alternate;
+  }
+
+  .landing-dynamic::after {
+    width: 240px;
+    height: 240px;
+    left: -90px;
+    bottom: -90px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.16), transparent 70%);
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+
+  .landing-copy,
+  .landing-visual {
+    position: relative;
+    z-index: 1;
+  }
+
+  .landing-chip {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--primary);
+    background: #eaf3ff;
+    border: 1px solid #d2e5fb;
+    border-radius: 999px;
+    padding: 0.38rem 0.72rem;
+  }
+
+  .landing-copy h1 {
+    margin: 0.75rem 0 0.7rem;
+    font-size: 2.25rem;
+    line-height: 1.15;
+  }
+
+  .landing-copy p {
+    margin: 0;
+    color: #2f465e;
+    max-width: 56ch;
+  }
+
+  .landing-points {
+    margin: 1rem 0 1.15rem;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .landing-points li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #1f3348;
+    font-size: 0.93rem;
+  }
+
+  .landing-points li::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: linear-gradient(140deg, var(--primary), #3a8de0);
+    box-shadow: 0 0 0 3px #e5f0fb;
+  }
+
+  .landing-hero-actions {
+    margin-top: 0.4rem;
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .landing-visual {
+    border: 1px solid #cfe2f4;
+    border-radius: 20px;
+    background: linear-gradient(170deg, #ffffff, #f0f7ff);
+    padding: 1rem;
+    box-shadow: 0 15px 30px rgba(12, 69, 130, 0.1);
+  }
+
+  .landing-visual svg {
+    width: 100%;
+    height: auto;
+    display: none;
+  }
+
+  .landing-visual img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+  }
+
+  @keyframes drift {
+    from { transform: translateY(0px); }
+    to { transform: translateY(14px); }
+  }
+
+  @media (max-width: 900px) {
+    .landing-dynamic {
+      grid-template-columns: 1fr;
+      padding: 1.4rem;
+    }
+
+    .landing-copy h1 {
+      font-size: 1.8rem;
+    }
+  }
+</style>
+
+<section class="landing-dynamic">
+  <div class="landing-copy">
+    <span class="landing-chip">AI-Powered LinkedIn Growth</span>
+    <h1>Optimize Your LinkedIn Profile with AI</h1>
+    <p>Get recruiter-ready profile suggestions, keyword optimization, and section-by-section recommendations built for faster shortlisting.</p>
+    <ul class="landing-points">
+      <li>Personalized headline and about improvements</li>
+      <li>Role-specific skill and keyword suggestions</li>
+      <li>Actionable checklist for profile upgrades</li>
+    </ul>
+    <div class="landing-hero-actions">
+      <a href="{{ url_for('analyzer') if session.get('user') else url_for('login') }}" class="btn">Analyze Profile</a>
+      <a href="{{ url_for('checklist') if session.get('user') else url_for('login') }}" class="btn btn-outline">Create LinkedIn Profile</a>
+    </div>
+  </div>
+  <div class="landing-visual" aria-hidden="true">
+    <img
+      src="{{ url_for('static', filename='images/illustration.jpg') }}"
+      alt="Man working on laptop illustration"
+      loading="lazy"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+    >
+    <svg viewBox="0 0 440 320" xmlns="http://www.w3.org/2000/svg" role="img">
+      <defs>
+        <linearGradient id="desk" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#d9e9fa"/>
+          <stop offset="1" stop-color="#b7d3f1"/>
+        </linearGradient>
+        <linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#0a66c2"/>
+          <stop offset="1" stop-color="#0b4f96"/>
+        </linearGradient>
+      </defs>
+      <rect x="22" y="214" width="396" height="70" rx="20" fill="url(#desk)"/>
+      <rect x="245" y="108" width="138" height="86" rx="10" fill="#1f3348"/>
+      <rect x="253" y="116" width="122" height="62" rx="7" fill="#f7fbff"/>
+      <rect x="265" y="126" width="66" height="8" rx="4" fill="#b7d3f1"/>
+      <rect x="265" y="142" width="98" height="8" rx="4" fill="#d6e5f5"/>
+      <rect x="265" y="158" width="84" height="8" rx="4" fill="#d6e5f5"/>
+      <rect x="299" y="194" width="30" height="12" rx="6" fill="#1f3348"/>
+      <ellipse cx="165" cy="90" rx="40" ry="38" fill="#ffd5b4"/>
+      <path d="M130 92c8-40 67-42 75 3-1-28-20-43-40-43s-36 14-35 40z" fill="#1f3348"/>
+      <path d="M118 200c7-38 29-58 57-58 27 0 50 20 57 58z" fill="url(#shirt)"/>
+      <rect x="190" y="170" width="68" height="16" rx="8" fill="#ffd5b4"/>
+      <rect x="148" y="198" width="74" height="16" rx="8" fill="#ffd5b4"/>
+      <rect x="84" y="232" width="115" height="18" rx="9" fill="#0b4f96"/>
+      <rect x="355" y="232" width="40" height="18" rx="9" fill="#0b4f96"/>
+      <circle cx="68" cy="42" r="12" fill="#22c55e" opacity="0.7"/>
+      <circle cx="395" cy="58" r="10" fill="#0a66c2" opacity="0.7"/>
+    </svg>
+  </div>
+</section>
+
+<section id="features" class="section">
+  <h2>Features</h2>
+  <div class="grid four">
+    {% with title='AI Profile Analysis', text='Analyze profile quality across key sections.' %}
+      {% include 'components/suggestion_card.html' %}
+    {% endwith %}
+    {% with title='Headline Optimizer', text='Generate role-focused and keyword-rich headlines.' %}
+      {% include 'components/suggestion_card.html' %}
+    {% endwith %}
+    {% with title='About Generator', text='Create professional About sections instantly.' %}
+      {% include 'components/suggestion_card.html' %}
+    {% endwith %}
+    {% with title='Profile Score', text='Track profile completeness from 0 to 100.' %}
+      {% include 'components/suggestion_card.html' %}
+    {% endwith %}
+  </div>
+</section>
+
+<section id="how-it-works" class="section">
+  <h2>How It Works</h2>
+  <div class="grid three">
+    <div class="card"><h3>1. Input</h3><p>Paste LinkedIn URL or profile content.</p></div>
+    <div class="card"><h3>2. Analyze</h3><p>System checks headline, about, skills, and experience.</p></div>
+    <div class="card"><h3>3. Improve</h3><p>Copy optimized content and update your profile.</p></div>
+  </div>
+</section>
+{% endblock %}

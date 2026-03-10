@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="card auth-card">
+    <div class="tab-row">
+      <button id="login-tab" class="tab active" type="button">Login</button>
+      <button id="signup-tab" class="tab" type="button">Sign Up</button>
+    </div>
+    <form method="post" id="auth-form" class="form">
+      <input type="hidden" name="action" id="form-action" value="login">
+      <label id="name-field" class="hidden">Name
+        <input type="text" name="name" placeholder="Enter your name">
+      </label>
+      <label>Email
+        <input type="email" name="email" required placeholder="name@email.com">
+      </label>
+      <label>Password
+        <input type="password" name="password" required placeholder="Enter password">
+      </label>
+      <button class="btn full" type="submit" id="auth-submit">Login</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

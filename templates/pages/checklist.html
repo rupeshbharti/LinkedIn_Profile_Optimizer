@@ -1,0 +1,321 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<section class="dashboard">
+  {% include 'components/sidebar.html' %}
+  <div class="main-content checklist-page">
+    <div class="checklist-header card">
+      <h1>LinkedIn Optimization Checklist</h1>
+      <p>
+        Work through each section to improve profile quality and recruiter visibility. Your score and impact update live as you complete items.
+      </p>
+    </div>
+
+    <div class="checklist-grid">
+      <aside class="checklist-nav card">
+        <h2>Profile Sections</h2>
+        <nav id="nav-container" class="checklist-nav-list"></nav>
+        <div class="checklist-tip">
+          <h3>Recruiter Tip</h3>
+          <p id="tip-box">
+            Start by improving your headline and profile photo to get the fastest gains.
+          </p>
+        </div>
+      </aside>
+
+      <main id="content-area" class="checklist-content card"></main>
+
+      <aside class="checklist-metrics">
+        <div class="card checklist-metric-card">
+          <h3>Optimization Score</h3>
+          <p class="metric-subtitle">Based on completed checklist items.</p>
+          <div class="chart-container">
+            <canvas id="scoreChart"></canvas>
+          </div>
+          <div class="score-text-wrap">
+            <span id="score-text">0%</span>
+            <span>Ready</span>
+          </div>
+        </div>
+
+        <div class="card checklist-metric-card">
+          <h3>Visibility Impact</h3>
+          <p class="metric-subtitle">Estimated lift versus a basic student profile.</p>
+          <div class="chart-container">
+            <canvas id="impactChart"></canvas>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const theme = getComputedStyle(document.documentElement);
+  const colorPrimary = theme.getPropertyValue('--primary').trim() || '#0a66c2';
+  const colorAccent = theme.getPropertyValue('--accent').trim() || '#22c55e';
+  const colorBorder = theme.getPropertyValue('--border').trim() || '#d7dee5';
+
+  const checklistData = {
+    headline: {
+      title: 'Headline and Header',
+      badge: 'HD',
+      intro: 'Your headline is your quickest credibility signal. Make role and skills clear in one line.',
+      checklist: [
+        { id: 'h1', text: 'Target role is included (for example: Aspiring Software Engineer)', weight: 10 },
+        { id: 'h2', text: 'Top technical skills are visible in the headline', weight: 10 },
+        { id: 'h3', text: 'Headline avoids generic text like only "Student"', weight: 8 },
+        { id: 'h4', text: 'Banner image looks professional and relevant', weight: 6 }
+      ],
+      content: `
+        <div class="checklist-insight-box">
+          <h4>Suggested Format</h4>
+          <p>[Target Role] | [Top Skills] | [Proof of Value]</p>
+        </div>
+        <p>Example: Aspiring Software Engineer | Python, Flask, SQL | Building data-driven web apps.</p>
+      `
+    },
+    photo: {
+      title: 'Profile Photo',
+      badge: 'PH',
+      intro: 'A clear and professional photo increases trust and profile engagement.',
+      checklist: [
+        { id: 'p1', text: 'Face is clear and centered', weight: 5 },
+        { id: 'p2', text: 'Background is clean and not distracting', weight: 5 },
+        { id: 'p3', text: 'Lighting is bright and natural', weight: 5 }
+      ],
+      content: `
+        <p>Use a close crop and plain background. Avoid group photos, heavy filters, and low-light images.</p>
+      `
+    },
+    about: {
+      title: 'About Section',
+      badge: 'AB',
+      intro: 'Your About section should explain what you build, what you are good at, and what role you want next.',
+      checklist: [
+        { id: 'a1', text: 'Starts with a strong hook', weight: 9 },
+        { id: 'a2', text: 'Mentions key technologies and interests', weight: 9 },
+        { id: 'a3', text: 'Shows outcomes, projects, or strengths', weight: 8 },
+        { id: 'a4', text: 'Ends with a clear call to action', weight: 6 }
+      ],
+      content: `
+        <p>Structure: Hook -> Skills -> Projects -> Goal.</p>
+        <p>End with: Open to internships and software engineering opportunities.</p>
+      `
+    },
+    experience: {
+      title: 'Experience and Projects',
+      badge: 'EX',
+      intro: 'Projects and internships should be written with impact, not only task descriptions.',
+      checklist: [
+        { id: 'e1', text: 'Projects include GitHub or live links', weight: 12 },
+        { id: 'e2', text: 'Bullet points start with action verbs', weight: 10 },
+        { id: 'e3', text: 'Each item includes measurable impact when possible', weight: 12 },
+        { id: 'e4', text: 'Tech stack is explicitly listed', weight: 8 }
+      ],
+      content: `
+        <p>Good bullet example: Built a Flask analytics dashboard that reduced manual reporting time by 40%.</p>
+      `
+    },
+    skills: {
+      title: 'Skills and Visibility',
+      badge: 'SK',
+      intro: 'Skills improve search ranking when they align with your target jobs.',
+      checklist: [
+        { id: 's1', text: 'Added at least 5 core technical skills', weight: 10 },
+        { id: 's2', text: 'Added relevant soft skills', weight: 6 },
+        { id: 's3', text: 'Skill order prioritizes target role relevance', weight: 6 },
+        { id: 's4', text: 'Skills align with headline and projects', weight: 8 }
+      ],
+      content: `
+        <p>Prioritize job-relevant skills first: Python, SQL, Flask, APIs, Git, Cloud basics.</p>
+      `
+    }
+  };
+
+  let activeSection = 'headline';
+  const userState = {};
+
+  Object.keys(checklistData).forEach((sectionKey) => {
+    checklistData[sectionKey].checklist.forEach((item) => {
+      userState[item.id] = false;
+    });
+  });
+
+  function renderNav() {
+    const navContainer = document.getElementById('nav-container');
+    navContainer.innerHTML = '';
+
+    Object.keys(checklistData).forEach((key) => {
+      const section = checklistData[key];
+      const isActive = key === activeSection;
+      const totalItems = section.checklist.length;
+      const checkedItems = section.checklist.filter((item) => userState[item.id]).length;
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `checklist-nav-item ${isActive ? 'active' : ''}`;
+      button.innerHTML = `
+        <span class="left">
+          <span class="badge">${section.badge}</span>
+          <span>${section.title}</span>
+        </span>
+        <span class="counter">${checkedItems}/${totalItems}</span>
+      `;
+
+      button.addEventListener('click', () => {
+        activeSection = key;
+        renderNav();
+        renderContent();
+      });
+
+      navContainer.appendChild(button);
+    });
+  }
+
+  function renderContent() {
+    const container = document.getElementById('content-area');
+    const data = checklistData[activeSection];
+    const totalWeight = data.checklist.reduce((sum, item) => sum + item.weight, 0);
+    const currentWeight = data.checklist.reduce((sum, item) => sum + (userState[item.id] ? item.weight : 0), 0);
+    const progress = Math.round((currentWeight / totalWeight) * 100);
+
+    container.innerHTML = `
+      <div class="checklist-content-head">
+        <h2>${data.title}</h2>
+        <span class="pill">Section Progress: ${progress}%</span>
+      </div>
+
+      <p class="checklist-intro">${data.intro}</p>
+
+      <div class="checklist-items">
+        ${data.checklist.map((item) => `
+          <label class="checklist-item ${userState[item.id] ? 'checked' : ''}">
+            <input type="checkbox" ${userState[item.id] ? 'checked' : ''} onchange="toggleCheck('${item.id}')">
+            <span>${item.text}</span>
+          </label>
+        `).join('')}
+      </div>
+
+      <div class="checklist-insight">
+        <h3>Recruiter Insights</h3>
+        ${data.content}
+      </div>
+    `;
+  }
+
+  function toggleCheck(itemId) {
+    userState[itemId] = !userState[itemId];
+    renderNav();
+    renderContent();
+    updateCharts();
+  }
+
+  let scoreChartInstance = null;
+  let impactChartInstance = null;
+
+  function initCharts() {
+    const scoreContext = document.getElementById('scoreChart').getContext('2d');
+    const impactContext = document.getElementById('impactChart').getContext('2d');
+
+    scoreChartInstance = new Chart(scoreContext, {
+      type: 'doughnut',
+      data: {
+        labels: ['Completed', 'Remaining'],
+        datasets: [{
+          data: [0, 100],
+          backgroundColor: [colorPrimary, '#e5edf5'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '76%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        }
+      }
+    });
+
+    impactChartInstance = new Chart(impactContext, {
+      type: 'bar',
+      data: {
+        labels: ['Search Hits', 'Profile Views', 'Replies'],
+        datasets: [
+          {
+            label: 'Baseline',
+            data: [20, 15, 5],
+            backgroundColor: '#d8e1eb',
+            borderRadius: 6
+          },
+          {
+            label: 'Your Potential',
+            data: [20, 15, 5],
+            backgroundColor: colorPrimary,
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#edf2f7' } },
+          x: { grid: { display: false } }
+        },
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  function updateCharts() {
+    let maxWeight = 0;
+    let score = 0;
+
+    Object.values(checklistData).forEach((section) => {
+      section.checklist.forEach((item) => {
+        maxWeight += item.weight;
+        if (userState[item.id]) {
+          score += item.weight;
+        }
+      });
+    });
+
+    const scorePercent = Math.round((score / maxWeight) * 100);
+    const scoreEl = document.getElementById('score-text');
+    scoreEl.textContent = `${scorePercent}%`;
+    scoreEl.style.color = scorePercent >= 80 ? colorAccent : colorPrimary;
+
+    scoreChartInstance.data.datasets[0].data = [scorePercent, 100 - scorePercent];
+    scoreChartInstance.data.datasets[0].backgroundColor = [scorePercent >= 80 ? colorAccent : colorPrimary, '#e5edf5'];
+    scoreChartInstance.update();
+
+    const searchBoost = 20 + (scorePercent * 2.3);
+    const viewBoost = 15 + (scorePercent * 1.7);
+    const replyBoost = 5 + (scorePercent * 0.45);
+
+    impactChartInstance.data.datasets[1].data = [searchBoost, viewBoost, replyBoost];
+    impactChartInstance.update();
+
+    const tipBox = document.getElementById('tip-box');
+    if (scorePercent < 30) {
+      tipBox.textContent = 'Start with headline and experience. Those sections deliver the fastest ranking gains.';
+    } else if (scorePercent < 70) {
+      tipBox.textContent = 'Strong progress. Add outcome metrics to projects to improve recruiter confidence.';
+    } else {
+      tipBox.textContent = 'Excellent profile quality. Next step is consistent networking and activity.';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderNav();
+    renderContent();
+    initCharts();
+    updateCharts();
+  });
+</script>
+{% endblock %}
