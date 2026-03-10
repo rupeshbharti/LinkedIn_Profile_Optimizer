@@ -15,10 +15,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 
 # Replace these with your real values in production.
-app.secret_key = os.getenv("FLASK_SECRET_KEY", "c59b590498a79d10b275fdc53b614d21880b06e57f2818d4")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "")
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://lpd_db_user:msoIUg6C6jui1asMqsZEzV201Lss7YRn@dpg-d6lv9jtactks73foej60-a.oregon-postgres.render.com/lpd_db",
+    "",
 )
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
