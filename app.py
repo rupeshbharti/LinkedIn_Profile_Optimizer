@@ -20,7 +20,7 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://lpd_db_user:msoIUg6C6jui1asMqsZEzV201Lss7YRn@dpg-d6lv9jtactks73foej60-a.oregon-postgres.render.com/lpd_db",
 )
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBrRDVzvr2l_sKtH2SnSk2tC4zo65OnN20")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 # SQLAlchemy supports PostgreSQL URLs directly.
